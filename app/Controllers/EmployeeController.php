@@ -20,20 +20,22 @@ class EmployeeController extends ResourceController
 
     public function employeeList()
     {
+        $baseURL = env('app.baseURL');
         $employees = $this->model->findAll();
         $arrayResult = [];
 
         foreach ($employees as $employee) {
             $position = $this->mjp->find($employee['iud_position']);
-            $jobLevel = $this->mut->find($employee['iud_job_level']);
+            $employmentType = $this->mut->find($employee['iud_employment_type']);
     
             $temp = [];
             $temp['id'] = $employee['iud_id'];
             $temp['fullname'] = $employee['iud_fullname'];
             $temp['email'] = $employee['iud_email'];
             $temp['position'] = $position['mjp_name'];
-            $temp['jobLevel'] = $jobLevel['mut_name'];
-            $temp['employmentType'] = $employee['iud_employment_type'];
+            $temp['jobLevel'] = $employee['iud_job_level'];
+            $temp['employmentType'] = $employmentType['mut_name'];
+            $temp['profile'] = $baseURL . '/uploads/' . $employee['iud_profile_pic'];
             $temp['status'] = $employee['iud_is_active'];
             array_push($arrayResult, $temp);
         }
@@ -52,56 +54,24 @@ class EmployeeController extends ResourceController
      */
     public function show($id = null)
     {
-        //
-    }
+        $employee = $this->model->find($id);
 
-    /**
-     * Return a new resource object, with default properties
-     *
-     * @return mixed
-     */
-    public function new()
-    {
-        //
-    }
+        $temp = [];
+        $temp['id'] = $employee['iud_id'];
+        $temp['salutation'] = $employee['iud_salutation'];
+        $temp['fullname'] = $employee['iud_fullname'];
+        $temp['gender'] = $employee['iud_gender'];
+        $temp['email'] = $employee['iud_email'];
+        $temp['position'] = $employee['iud_position'];
+        $temp['jobLevel'] = $employee['iud_job_level'];
+        $temp['employmentType'] = $employee['iud_employment_type'];
+        $temp['status'] = $employee['iud_is_active'];
 
-    /**
-     * Create a new resource object, from "posted" parameters
-     *
-     * @return mixed
-     */
-    public function create()
-    {
-        //
-    }
+        $data = [
+            'message' => 'success',
+            'data' => $temp
+        ];
 
-    /**
-     * Return the editable properties of a resource object
-     *
-     * @return mixed
-     */
-    public function edit($id = null)
-    {
-        //
-    }
-
-    /**
-     * Add or update a model resource, from "posted" properties
-     *
-     * @return mixed
-     */
-    public function update($id = null)
-    {
-        //
-    }
-
-    /**
-     * Delete the designated resource object from the model
-     *
-     * @return mixed
-     */
-    public function delete($id = null)
-    {
-        //
+        return $this->respond($data, 200);
     }
 }

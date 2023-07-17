@@ -36,11 +36,14 @@ $routes->post('api/login-admin', 'AuthController::loginAdmin');
 
 /** ADMIN */
 $routes->post('api/create-employee', 'AdminController::createEmployee');
+$routes->put('api/edit-employee/(:num)', 'AdminController::editEmployee/$1');
 $routes->put('api/change-employee-status/(:num)', 'AdminController::changeEmployeeStatus/$1');
 $routes->delete('api/delete-employee/(:num)', 'AdminController::deleteEmployee/$1');
+$routes->post('api/upload-image/(:num)', 'AdminController::uploadImage/$1');
 
 /** EMPLOYEE */
 $routes->get('api/employee-list', 'EmployeeController::employeeList');
+$routes->get('api/employee-detail/(:num)', 'EmployeeController::show/$1');
 
 /** USER */
 $routes->get('api/user-list', 'UserController::userList');

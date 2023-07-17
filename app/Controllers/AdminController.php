@@ -87,6 +87,50 @@ class AdminController extends ResourceController
         return $this->respondCreated($response);
     }
 
+    public function editEmployee($id)
+    {
+        $rules = $this->validate([
+            'fullName'      => 'required',
+            'salutation'    => 'required',
+            'gender'        => 'required',
+            'jobLevel'      => 'required',
+            'position'      => 'required',
+            'employmentType'=> 'required',
+            'isActive'      => 'required'
+        ]);
+
+        if (!$rules) {
+            $response = [
+                'message' => $this->validator->getErrors()
+            ];
+
+            return $this->failValidationErrors($response);
+        }
+
+        $employee = $this->employee->find($id);
+
+        $this->registrationData->update($employee['iud_rd_id'], [
+            'rd_fullname'   => esc($this->request->getVar('fullName'))
+        ]);
+
+        $this->employee->update($id, [
+            'iud_fullname'      => esc($this->request->getVar('fullName')),
+            'iud_salutation'    => esc($this->request->getVar('salutation')),
+            'iud_gender'        => esc($this->request->getVar('gender')),
+            'iud_job_level'      => esc($this->request->getVar('jobLevel')),
+            'iud_position'      => esc($this->request->getVar('position')),
+            'iud_employment_type'=> esc($this->request->getVar('employmentType')),
+            'iud_is_active'      => esc($this->request->getVar('isActive')),
+            'iud_active_date'      => esc($this->request->getVar('isActive')) ? date('Y-m-d H:i:s') : null
+        ]);
+
+        $response = [
+            'message' => 'Data berhasil diubah'
+        ];
+
+        return $this->respondCreated($response);
+    }
+
     public function changeEmployeeStatus($id)
     {
         $oldEmployee = $this->employee->find($id);
@@ -117,5 +161,41 @@ class AdminController extends ResourceController
         ];
 
         return $this->respondDeleted($response);
+    }
+
+    public function uploadImage($id)
+    {
+        $rules = $this->validate([
+            'image'      => 'uploaded[image]|is_image[image]|max_size[image, 300]',
+        ]);
+
+        if (!$rules) {
+            $response = [
+                'message' => $this->validator->getErrors()
+            ];
+
+            return $this->failValidationErrors($response);
+        }
+
+        $employee = $this->employee->find($id);
+        $employeePict = $employee['iud_profile_pic'];
+
+        if(!is_null($employeePict)) {
+            unlink('uploads/'.$employeePict);
+        }
+
+        $image = $this->request->getFile('image');
+        $imageName = pathinfo($image->getName(), PATHINFO_FILENAME) . "_" . date('Y-m-d H:i:s') . "." . pathinfo($image->getName(), PATHINFO_EXTENSION);;
+        $image->move('uploads', $imageName);
+
+        $this->employee->update($id, [
+            'iud_profile_pic'      => $imageName
+        ]);
+
+        $data = [
+            'message' => 'success'
+        ];
+
+        return $this->respond($data, 200);
     }
 }
